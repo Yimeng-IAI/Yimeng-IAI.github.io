@@ -278,8 +278,9 @@ if (window.L && mapElement) {
           iconSize: [30, 22],
           iconAnchor: [15, 11]
         });
-        const marker = L.marker([lat, lon], { icon, title: region }).addTo(markers);
-        marker.getElement().setAttribute("aria-label", region);
+        const marker = L.marker([lat, lon], { icon, title: region });
+        marker.on("add", () => marker.getElement()?.setAttribute("aria-label", region));
+        marker.addTo(markers);
         marker.bindTooltip(region).on("click", () => {
           selector.value = region;
           showDestinations();
