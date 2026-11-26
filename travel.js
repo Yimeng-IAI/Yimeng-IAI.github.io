@@ -256,9 +256,39 @@ if (window.L && mapElement) {
   const markers = L.layerGroup().addTo(map);
   const selector = document.getElementById("travel-region");
   selector.closest(".travel-controls").hidden = false;
+  const overview = [
+    ["United Kingdom", "gb", 54, -2.5],
+    ["France", "fr", 46.6, 2.4],
+    ["Spain", "es", 40.1, -3.7],
+    ["Portugal", "pt", 39.6, -8.3],
+    ["Germany", "de", 51.2, 10.2],
+    ["Netherlands", "nl", 53, 4.7],
+    ["Singapore", "sg", 1.352, 103.82],
+    ["Malaysia", "my", 5.2, 110],
+    ["Macao", "mo", 22.198, 113.544]
+  ];
   function showDestinations() {
     markers.clearLayers();
     const bounds = L.latLngBounds([]);
+    if (!selector.value) {
+      for (const [region, flag, lat, lon] of overview) {
+        const icon = L.divIcon({
+          className: "region-flag",
+          html: '<img src="https://flagcdn.com/w80/' + flag + '.png" alt="">',
+          iconSize: [30, 22],
+          iconAnchor: [15, 11]
+        });
+        const marker = L.marker([lat, lon], { icon, title: region }).addTo(markers);
+        marker.getElement().setAttribute("aria-label", region);
+        marker.bindTooltip(region).on("click", () => {
+          selector.value = region;
+          showDestinations();
+        });
+        bounds.extend([lat, lon]);
+      }
+      map.fitBounds(bounds, { padding: [30, 30], maxZoom: 4 });
+      return;
+    }
     for (const [region, places] of destinations) {
       if (selector.value && selector.value !== region) continue;
       for (const [name, lat, lon] of places) {
